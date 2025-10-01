@@ -31,7 +31,7 @@ jobs:
 
         token = os.getenv("GITHUB_TOKEN")
 
-        repo_name = "YourUsername/YourRepoName" 
+        repo_name = "ThaminduDisnaZ/Esena-News-Github-Bot" 
         g = Github(token)
         repo = g.get_repo(repo_name)
 
