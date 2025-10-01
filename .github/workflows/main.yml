@@ -2,7 +2,7 @@ name: Fetch and Commit Latest News
 
 on:
   schedule:
-    - cron: '*/30 * * * *' 
+    - cron: '*/30 * * * *' # Runs every 30 minutes
   workflow_dispatch:
 
 jobs:
@@ -26,12 +26,14 @@ jobs:
 
       - name: Commit and push if there are changes
         run: |
-          git config --global user.name 'Helakuru Bot'
-          git config --global user.email 'bot@github.com'
+          git config --global user.name 'ThaminduDisnaZ'
+          git config --global user.email 'thamindud.se@gmail.com'
           git add News/
           # Check if there are any changes to commit
           if ! git diff --staged --quiet; then
-            git commit -m "Updated with the latest news at $(date -u)"
+           
+            git commit -m "Updated with the latest news at $(date -u +'%Y-%m-%dT%H:%M:%SZ') 📅"
+           
             git push
           else
             echo "No new news to commit."
