@@ -1,0 +1,38 @@
+name: Fetch and Commit Latest News
+
+on:
+  schedule:
+    - cron: '*/30 * * * *' # Runs every 30 minutes
+  workflow_dispatch:
+
+jobs:
+  update-news:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Fetch and create news files
+        run: node update-news.js
+
+      - name: Commit and push if there are changes
+        run: |
+          git config --global user.name 'Helakuru Bot'
+          git config --global user.email 'bot@github.com'
+          git add News/
+          # Check if there are any changes to commit
+          if ! git diff --staged --quiet; then
+            git commit -m "Updated with the latest news at $(date -u)"
+            git push
+          else
+            echo "No new news to commit."
+          fi

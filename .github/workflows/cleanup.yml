@@ -1,0 +1,55 @@
+name: Cleanup Old News Folders
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs daily at midnight
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install PyGitHub
+      run: |
+        python -m pip install --upgrade pip
+        pip install PyGitHub
+
+    - name: Remove outdated folders via GitHub API
+      env:
+        GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+      run: |
+        python - <<EOF
+        import os
+        from datetime import datetime, timedelta, timezone
+        from github import Github
+
+        token = os.getenv("GITHUB_TOKEN")
+        # --- කරුණාකර මේ නම ඔබේ repository නමට වෙනස් කරන්න ---
+        repo_name = "YourUsername/YourRepoName" 
+        g = Github(token)
+        repo = g.get_repo(repo_name)
+
+        cutoff_time = datetime.now(timezone.utc) - timedelta(days=7)
+
+        contents = repo.get_contents("News")
+        for content in contents:
+            if content.type == "dir":
+                commits = repo.get_commits(path=content.path)
+                if commits.totalCount > 0:
+                    last_modified = commits[0].commit.author.date
+                    if last_modified < cutoff_time:
+                        print(f"Deleting outdated folder: {content.path}")
+                        files_to_delete = repo.get_contents(content.path)
+                        for file in files_to_delete:
+                            try:
+                                repo.delete_file(file.path, f"Auto-delete outdated file: {file.name}", file.sha)
+                                print(f"  Deleted file: {file.path}")
+                            except Exception as e:
+                                print(f"  Error deleting file {file.path}: {e}")
+        EOF
