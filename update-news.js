@@ -2,9 +2,7 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 
-
 const API_URL = "https://esena-news-api-v3.vercel.app/";
-
 
 function sanitizeFilename(name) {
     return name.replace(/[\/\\?%*:|"<>]/g, '-').replace(/\s+/g, '_');
@@ -14,7 +12,6 @@ async function fetchAndSaveNews() {
     console.log(`Fetching latest news from your API: ${API_URL}`);
     try {
         const response = await axios.get(API_URL);
-
         const articles = response.data.news_data.data;
 
         if (!articles || articles.length === 0) {
@@ -33,7 +30,15 @@ async function fetchAndSaveNews() {
 
             const dirPath = path.join('News', dateFolder);
             const sanitizedTitle = sanitizeFilename(article.titleSi);
-            const fileName = `${article.id}-${sanitizedTitle}.md`;
+
+            const MAX_TITLE_LENGTH = 100; 
+            const truncatedTitle = sanitizedTitle.length > MAX_TITLE_LENGTH 
+                ? sanitizedTitle.substring(0, MAX_TITLE_LENGTH) 
+                : sanitizedTitle;
+            
+            const fileName = `${article.id}-${truncatedTitle}.md`;
+          
+            
             const filePath = path.join(dirPath, fileName);
 
             if (fs.existsSync(filePath)) {
@@ -53,7 +58,6 @@ date: ${article.published}
 
 `;
 
-     
             if (article.contentSi) {
                 article.contentSi.forEach(block => {
                     if (block.type === 'text' && block.data) {
