@@ -2,18 +2,20 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 
-const API_URL = "https://helakuru.bhashalanka.com/esana/news/recent-news.json";
 
-// File නමකට ගැලපෙන විදියට title එක sanitize කරන function එක
+const API_URL = "https://esena-news-api-v3.vercel.app/";
+
+
 function sanitizeFilename(name) {
     return name.replace(/[\/\\?%*:|"<>]/g, '-').replace(/\s+/g, '_');
 }
 
 async function fetchAndSaveNews() {
-    console.log('Fetching latest news...');
+    console.log(`Fetching latest news from your API: ${API_URL}`);
     try {
         const response = await axios.get(API_URL);
-        const articles = response.data.data;
+
+        const articles = response.data.news_data.data;
 
         if (!articles || articles.length === 0) {
             console.log('No articles found in the API response.');
@@ -34,15 +36,12 @@ async function fetchAndSaveNews() {
             const fileName = `${article.id}-${sanitizedTitle}.md`;
             const filePath = path.join(dirPath, fileName);
 
-            // ෆයිල් එක දැනටමත් තියෙනවදැයි පරීක්ෂා කිරීම
             if (fs.existsSync(filePath)) {
-                // console.log(`Skipping existing article: ${fileName}`);
-                continue; // තියෙනවා නම්, ඊළඟ article එකට යනවා
+                continue;
             }
 
             console.log(`Creating new article: ${filePath}`);
 
-            // Markdown content එක සකස් කිරීම
             let markdownContent = `---
 title: "${article.titleSi.replace(/"/g, '\\"')}"
 date: ${article.published}
@@ -54,17 +53,20 @@ date: ${article.published}
 
 `;
 
-            article.contentSi.forEach(block => {
-                if (block.type === 'text') {
-                    markdownContent += `${block.data.replace(/<[^>]*>?/gm, '')}\n\n`;
-                } else if (block.type === 'image') {
-                    markdownContent += `![Image](${block.data})\n\n`;
-                } else if (block.type === 'iframe') {
-                    markdownContent += `[Watch Video](${block.data})\n\n`;
-                }
-            });
+     
+            if (article.contentSi) {
+                article.contentSi.forEach(block => {
+                    if (block.type === 'text' && block.data) {
+                        const cleanText = block.data.replace(/<[^>]*>?/gm, '');
+                        markdownContent += `${cleanText}\n\n`;
+                    } else if (block.type === 'image') {
+                        markdownContent += `![Image](${block.data})\n\n`;
+                    } else if (block.type === 'iframe') {
+                        markdownContent += `[Watch Video](${block.data})\n\n`;
+                    }
+                });
+            }
 
-            // Directory එක සාදා, ෆයිල් එක ලිවීම
             fs.mkdirSync(dirPath, { recursive: true });
             fs.writeFileSync(filePath, markdownContent);
         }

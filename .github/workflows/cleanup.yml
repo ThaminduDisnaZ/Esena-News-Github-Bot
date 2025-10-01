@@ -2,7 +2,7 @@ name: Cleanup Old News Folders
 
 on:
   schedule:
-    - cron: '0 0 * * *' # Runs daily at midnight
+    - cron: '0 0 * * *' 
   workflow_dispatch:
 
 jobs:
@@ -30,7 +30,7 @@ jobs:
         from github import Github
 
         token = os.getenv("GITHUB_TOKEN")
-        # --- කරුණාකර මේ නම ඔබේ repository නමට වෙනස් කරන්න ---
+
         repo_name = "YourUsername/YourRepoName" 
         g = Github(token)
         repo = g.get_repo(repo_name)
