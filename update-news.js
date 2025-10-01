@@ -31,7 +31,7 @@ async function fetchAndSaveNews() {
             const dirPath = path.join('News', dateFolder);
             const sanitizedTitle = sanitizeFilename(article.titleSi);
 
-            const MAX_TITLE_LENGTH = 100; 
+            const MAX_TITLE_LENGTH = 70; 
             const truncatedTitle = sanitizedTitle.length > MAX_TITLE_LENGTH 
                 ? sanitizedTitle.substring(0, MAX_TITLE_LENGTH) 
                 : sanitizedTitle;
