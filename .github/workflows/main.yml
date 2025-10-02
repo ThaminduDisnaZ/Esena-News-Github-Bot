@@ -2,7 +2,7 @@ name: Fetch and Commit Latest News
 
 on:
   schedule:
-    - cron: '*/60 * * * *' # Runs every 30 minutes
+    - cron: '*/30 * * * *' 
   workflow_dispatch:
 
 jobs:
