@@ -33,7 +33,7 @@ jobs:
           # Check if there are any changes to commit
           if ! git diff --staged --quiet; then
            
-            git commit -m "Updated with the latest news at $(date -u +'%Y-%m-%dT%H:%M:%SZ') 📅"
+            git commit -m "Updated with the latest news at $("Date:-"+date -u +"Time:-"+'%Y-%m-%dT%H:%M:%SZ')"
            
             git push
           else
